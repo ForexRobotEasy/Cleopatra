@@ -1,0 +1,109 @@
+mql5
+//+------------------------------------------------------------------+
+//|                                           Cleopatra.mq5          |
+//|                                Copyright 2021, Forex Robot Easy Team |
+//|                                         https://forexroboteasy.com |
+//+------------------------------------------------------------------+
+
+// Define input parameters for customizable settings
+input double stopLoss = 50; // Stop loss in pips
+input double takeProfit = 100; // Take profit in pips
+input int maxDrawdown = 20; // Maximum allowable drawdown percentage
+input double riskPercentage = 2; // Risk percentage per trade
+input bool useVPS = true; // Use VPS for uninterrupted trading
+
+// Define global variables
+string broker = 'IC Markets'; // Recommended broker
+string currencyPair = 'AUDCAD'; // Currency pair to trade
+double minAccountBalance = 1000; // Minimum account balance required
+double lotSize = 0.01; // Initial lot size
+double currentAccountBalance; // Current account balance
+double maxLotSize; // Maximum lot size
+
+//+------------------------------------------------------------------+
+//| Expert initialization function                                   |
+//+------------------------------------------------------------------+
+int OnInit()
+{
+   // Check if account balance meets the minimum requirement
+   currentAccountBalance = AccountInfoDouble(ACCOUNT_BALANCE);
+   if (currentAccountBalance < minAccountBalance)
+   {
+      Print('Insufficient account balance. Minimum requirement: $', minAccountBalance);
+      ExpertRemove();
+   }
+   
+   // Calculate maximum lot size based on risk percentage and account balance
+   maxLotSize = (currentAccountBalance * riskPercentage) / (stopLoss * SymbolInfoDouble(currencyPair, SYMBOL_POINT));
+   
+   return(INIT_SUCCEEDED);
+}
+
+//+------------------------------------------------------------------+
+//| Expert tick function                                             |
+//+------------------------------------------------------------------+
+void OnTick()
+{
+   // Check for rebound from significant price levels
+   if (CheckRebound())
+   {
+      // Calculate lot size based on drawdown and risk management
+      double calculatedLotSize = CalculateLotSize();
+      
+      // Open position with calculated lot size
+      if (OpenPosition(calculatedLotSize))
+      {
+         // Close position when take profit or stop loss is reached
+         ClosePosition();
+      }
+   }
+}
+
+//+------------------------------------------------------------------+
+//| Check for rebound from significant price levels                   |
+//+------------------------------------------------------------------+
+bool CheckRebound()
+{
+   // Add your code here to analyze the market for a rebound from significant price levels
+   // Return true if rebound is detected, false otherwise
+   // Example: return (iClose(NULL, PERIOD_M1, 1) > iOpen(NULL, PERIOD_M1, 1));
+}
+
+//+------------------------------------------------------------------+
+//| Calculate lot size based on drawdown and risk management         |
+//+------------------------------------------------------------------+
+double CalculateLotSize()
+{
+   // Add your code here to calculate lot size based on drawdown and risk management
+   // Return calculated lot size
+   // Example: return NormalizeDouble(MathMin(lotSize, maxLotSize), 2);
+}
+
+//+------------------------------------------------------------------+
+//| Open position with calculated lot size                           |
+//+------------------------------------------------------------------+
+bool OpenPosition(double lotSize)
+{
+   // Add your code here to open position with calculated lot size
+   // Return true if position is opened successfully, false otherwise
+   // Example: return OrderSend(Symbol(), OP_BUY, lotSize, Ask, 0, 0, 0, 'Cleopatra', 0, 0, clrGreen);
+}
+
+//+------------------------------------------------------------------+
+//| Close position when take profit or stop loss is reached          |
+//+------------------------------------------------------------------+
+void ClosePosition()
+{
+   // Add your code here to close position when take profit or stop loss is reached
+   // Example: if (OrderTakeProfit() > 0 || OrderStopLoss() > 0) OrderClose(OrderTicket(), OrderLots(), Bid, 0, clrRed);
+}
+
+//+------------------------------------------------------------------+
+//| Expert deinitialization function                                 |
+//+------------------------------------------------------------------+
+void OnDeinit(const int reason)
+{
+   // Add your code here for any cleanup or final actions
+}
+
+//+------------------------------------------------------------------+
